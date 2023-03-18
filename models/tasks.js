@@ -1,16 +1,28 @@
-//Import Mongoose library
+//import mongoose library
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
+const { v4: uuidv4 } = require("uuid");
 
+//Create a blogSchema
+const taskSchema = new Schema({
+  id: { type: String, required: true, default: () => uuidv4() },
+  name: { type: String, required: true },
+  assignee: { type: String, required: true },
+  description: { type: String, required: true },
+  comments: [{ body: String, date: Date }],
+  completed: { type: Boolean, default: false },
+  dateCreated: { type: Date, default: Date.now, required: true },
+  dateDue: { type: Date, default: Date.now, required: true },
+  dateCompleted: { type: Date, default: "" },
+  status: {
+    type: String,
+    default: "incomplete",
+    enum: ["incomplete", "complete", "deferred"],
+  },
+});
 
-//Create a task schema
-const taskSchema = new mongoose.Schema({
-    name: String, //Validation required
-    description: String,
-    completed: Boolean, //Validation required
-    dateCreated: { type: Date, default: Date.now },
-    dateCompleted: { type: Date, },
-    status: { type: String, default: "incomplete" }
-    // Validation required ('incomplete', 'complete', 'deferred')
-})
+//Register model to the database collection
+const tasksModel = mongoose.model("tasks", taskSchema);
 
-module.exports = taskSchema;
+//Make the model available to other files
+module.exports = tasksModel;
