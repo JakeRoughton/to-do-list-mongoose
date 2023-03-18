@@ -1,33 +1,28 @@
-//Create variable to hold function data for validation
-const validateTasks = (tasks)=>{
-    //Task title is required and must be a string
-    if(tasks.name === undefined || typeof(tasks.name)!=="string"){
-        return{
-            isValid: true,
-            message: "Name is required and must be a string"
-        }
-    }
+//import mongoose library
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
+const { v4: uuidv4 } = require("uuid");
 
-    if(tasks.completed !== true || tasks.completed !== false){
-        return{
-            isValid: true,
-            message: "Task completion must be true or false"
-        }
-    }
+//Create a blogSchema
+const taskSchema = new Schema({
+  id: { type: String, required: true, default: () => uuidv4() },
+  name: { type: String, required: true },
+  assignee: { type: String, required: true },
+  description: { type: String, required: true },
+  comments: [{ body: String, date: Date }],
+  completed: { type: Boolean, default: false },
+  dateCreated: { type: Date, default: Date.now, required: true },
+  dateDue: { type: Date, default: Date.now, required: true },
+  dateCompleted: { type: Date, default: "" },
+  status: {
+    type: String,
+    default: "incomplete",
+    enum: ["incomplete", "complete", "deferred"],
+  },
+});
 
-    if(tasks.date !== Date)
-        return{
-            isValid: true,
-            message: "Task date must be a date"
-        }
+//Register model to the database collection
+const tasksModel = mongoose.model("tasks", taskSchema);
 
-    if(tasks.status !== "incomplete" || tasks.status !== "complete" || tasks.status !== "deferred"){
-        return{
-            isValid: true,
-            message: "Task status MUST have status of 'incomplete', 'complete', 'deferred'"
-        }
-    }
-}
-module.exports = {
-    validateTasks
-}
+//Make the model available to other files
+module.exports = tasksModel;

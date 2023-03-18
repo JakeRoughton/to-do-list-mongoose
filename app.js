@@ -1,56 +1,56 @@
-const createError = require('http-errors');
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const tasksController = require('./controllers/tasksContoller')
+const createError = require("http-errors");
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
 
-//Loads the contents of config.env
-require ("dotenv").config();
+require("dotenv").config();
 
-//look in our .env file for PORT, if it's not there, default to 5002.
-const PORT = process.env.PORT || 3000;
-
-const { mongooseConnect } = require('./mongoose.js');
+//Assign port
+const PORT = process.env.PORT || 5000;
+const { mongooseConnect } = require("./mongoose.js");
 mongooseConnect();
 
-const indexRouter = require('./routes/index');
-const tasksRouter = require('./routes/tasks');
-
+//Register routes
+const indexRoutes = require("./routes/index");
+const taskRoutes = require("./routes/tasks");
 const app = express();
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "ejs");
 
-//associating the libraries with the app
-// adding middleware 
-//(adding libraries that we can use throughout our application)
-app.use(logger('dev'));
+//Setup logger and cookie parser
+app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
-//register routes
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/tasks', tasksRouter);
+//allow loading of static files from public
+app.use(express.static(path.join(__dirname, "public")));
+
+app.use("/", indexRoutes);
+app.use("/tasks", taskRoutes);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.locals.error = req.app.get("env") === "development" ? err : {};
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.render("error");
+});
+
+// start the Express server
+app.listen(PORT, () => {
+  console.log(`Server is running on port: ${PORT}`);
 });
 
 module.exports = app;
